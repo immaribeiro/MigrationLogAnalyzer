@@ -1,0 +1,5 @@
+The goal of this project is to read Migration Logs files (Import log from CxONE) and export multiple csv files depending on the type of data found in the log.
+
+This will get the .log files from /logs folder a will return into the /output folder, all the .csv files generated
+
+(WIP)
