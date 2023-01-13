@@ -12,20 +12,21 @@ output_file_name = os.path.splitext(log_file_name)[0]
 output_file = output_file_path + output_file_name
 
 def from_log_into_csv(log_file_name):
-    # Open the log file and the csv file
-    with open(log_file_path + log_file_name, 'r') as logfile, open(output_file + "_triages.csv", 'w', newline='') as csvfile_triage, open(output_file + "_queries.csv", 'w', newline='') as csvfile_queries:
-        # Create a csv writers object for triages
-        writer_triage = csv.writer(csvfile_triage)
-        # Write the header row
+    csv_file_names = [output_file + "_triages.csv", output_file + "_queries.csv", output_file + "_projects.csv"]
+    with open(log_file_path + log_file_name, 'r') as logfile:
+        csv_files = [open(f, 'w', newline='') for f in csv_file_names]
+        writer_triage = csv.writer(csv_files[0])
+        writer_queries = csv.writer(csv_files[1])
+        writer_projects = csv.writer(csv_files[2])
         writer_triage.writerow(['Worker','SimilarityID', 'Error'])
-        # Create a csv writers object for queries
-        writer_queries = csv.writer(csvfile_queries)
-        # Write the header row
         writer_queries.writerow(['Worker','ProjectID', 'Error'])
-        
+        writer_projects.writerow(['Projects Imported'])
+
         for line in logfile:
             try:
                 data = json.loads(line)
+
+                #Traiges Logic
                 if "skipping predicate" in data['msg']:
                     worker = data['worker']
                     similarity_id = data['msg'].split()[2]
@@ -34,10 +35,10 @@ def from_log_into_csv(log_file_name):
                     if match:
                         error = match.group(1)
                     else:
-                        error = "No match found."
-
+                        error = "No match found"
                     writer_triage.writerow([worker, similarity_id, error])
                     
+                #Queries Logic    
                 elif "skipping group" in data['msg']:
                     project_id = data['msg'].split()[3]
                     worker = data['worker']
@@ -46,8 +47,17 @@ def from_log_into_csv(log_file_name):
                     if match:
                         error = match.group(1)
                     else:
-                        error = "No match found."
+                        error = "No match found"
                     writer_queries.writerow([worker, project_id, error ])
+                
+                #Projects Imported Logic
+                elif "created project" in data['msg']:
+                    match = re.search(r'created project (.+)', data['msg'])
+                    if match:
+                        project_name = match.group(1)
+                        writer_projects.writerow([project_name])
+                    else:
+                        writer_projects.writerow("No project found")
 
             except json.decoder.JSONDecodeError:
                 # Handle JSONDecodeError in case a line is not in json format
@@ -55,34 +65,8 @@ def from_log_into_csv(log_file_name):
             except KeyError:
                 # Handle KeyError in case the json object does not contain the expected keys
                 print("Missing keys in JSON object, skipping")
+        for csv_file in csv_files:
+            csv_file.close()
+
 
 from_log_into_csv("8f860c2c-3b3a-471f-9501-29c23e792bce.log")
-
-
-
-# import re
-
-# line = '{"msg":"similarity id 657146215 is not unique, skipping predicate"}'
-# data = json.loads(line)
-# msg = data['msg']
-
-# match = re.search(r'id \d+ (.+?),', msg)
-# if match:
-#     text = match.group(1)
-#     print(text)
-# else:
-#     print("No match found.")
-
-
-
-# import re
-# line = '{"msg":"similarity id 657146215 is not unique, skipping predicate"}'
-# data = json.loads(line)
-# msg = data['msg']
-
-# text = re.findall(r'id \d+ (.+?),', msg)
-# if text:
-#     text = text[0]
-#     print(text)
-# else:
-#     print("No match found.")
