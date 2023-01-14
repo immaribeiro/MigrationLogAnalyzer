@@ -15,9 +15,9 @@ jobs:
           # Provide the Tenant for AST portal URL
           cx_tenant: emanuel_ribeiro_gst
           # Client ID for AST portal authentication
-          cx_client_id: ${{ secrets.GHMIGRATIONPROJECT }}
+          cx_client_id: ${{ secrets.CLIENT_ID }}
           # Secret key for AST portal authentication
-          cx_client_secret: ${{ secrets.secret }},
+          cx_client_secret: ${{ secrets.SECRET }},
           # Select a Checkmarx Project Name
           project_name: ${{ github.repository }}
           # Branch name
