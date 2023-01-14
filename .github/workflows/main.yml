@@ -17,7 +17,7 @@ jobs:
           # Client ID for AST portal authentication
           cx_client_id: ${{ secrets.GHMIGRATIONPROJECT }}
           # Secret key for AST portal authentication
-          cx_client_secret: ${{ secrets.GHMIGRATIONPROJECT }},
+          cx_client_secret: ${{ secrets.secret }},
           # Select a Checkmarx Project Name
           project_name: ${{ github.repository }}
           # Branch name
